@@ -485,8 +485,7 @@
 
               done_yet = future.done()
               res = future.result()
-              # Equivalent to future.result()
-              <mark>res = knot.jobs[-1].result()</mark>
+              <mark>res = knot.jobs[-1].result() # Equivalent to future.result()</mark>
 
 
 
@@ -519,8 +518,8 @@
 
               done_yet = future.done()
               res = future.result()
-              # Equivalent to future.result()
-              res = knot.jobs[-1].result()
+              res = knot.jobs[-1].result()  # Equivalent to future.result()
+
 
               PI = 0.0
               def <mark>pi_from_future</mark>(future):
