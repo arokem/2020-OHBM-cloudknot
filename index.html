@@ -1,0 +1,759 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Cloudknot</title>
+
+    <meta name="description" content="Presentation of Cloudknot, a Python library to run your existing code on AWS Batch.">
+    <meta name="author" content="Adam Richie-Halford">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/moon.css">
+    <link rel="stylesheet" href="css/theme/richford.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section id="cover">
+            <h2>Cloudknot:</h2>
+            <h3>A Python library to run your existing code on AWS Batch</h3>
+            <p><a href="http://github.com/richford">Adam Richie-Halford</a>, <a href="https://phys.washington.edu/">University of Washington Dept of Physics</a></p>
+            <p><a href="http://arokem.org">Ariel Rokem</a>, <a href="http://escience.washington.edu">University of Washington eScience Institute</a> </p>
+            <p> <small>Follow along at <a href="http://richford.github.io/scipy2018-cloudknot-talk/">http://richford.github.io/scipy2018-cloudknot-talk/</a></small></p>
+            <img src="img/cc-by.png" height="30px" alt="License" align="middle">
+        </section>
+        <section id="about-us">
+            <h2>What we do</h2>
+        </section>
+        <section id="ariel">
+            <h2>Ariel</h2>
+            <div class="row">
+                <div style="float: left; width: 25%;">
+                    <img src="img/ariel.jpg" height="300">
+                </div>
+                <div style="float: left; width: 74%; padding-left: 5px;">
+                    <ul>
+                        <li class="fragment">Senior Data Scientist, UW eScience Institute</li>
+                        <li class="fragment">Software and Data Carpentry Instructor and Instructor Trainer</li>
+                        <li class="fragment">Chair of eScience working group on reproducibility and open science</li>
+                        <li class="fragment">Applies statistical learning to diffusion MRI data</li>
+                        <li class="fragment">Ninja</li>
+                        <li class="fragment">Cyborg</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section id="adam">
+            <h2>Adam</h2>
+            <div class="row">
+                <div style="float: left; width: 25%;">
+                    <img src="img/adam.jpeg" height="300">
+                </div>
+                <div style="float: left; width: 74%; padding-left: 5px;">
+                    <ul>
+                        <li class="fragment">PhD Candidate, UW Physics</li>
+                        <li class="fragment">Nuclear theory: quantum Monte Carlo studies of neutron matter</li>
+                        <li class="fragment">Neuroscience: visualization and machine learning tools for neuroimaging data</li>
+                        <li class="fragment">Dressed myself this morning</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section>
+            <h2>We use Python</h2>
+            <ul>
+                <li class="fragment">Post-processing of QMC results</li>
+                <li class="fragment">Computational neuroanatomy, <a href="http://nipy.org/dipy/">DIPY</a></li>
+                <li class="fragment">White matter tractometry, <a href="https://yeatmanlab.github.io/pyAFQ/">pyAFQ</a></li>
+            </ul>
+        </section>
+        <section>
+            <h2>We love working in our Python environment</h2>
+            <div class="imgcite">
+                <img src="img/pyafq-screenshot.png" height="600" align="middle" alt="pyAFQ screenshot">
+                <br>
+                Diffusion MRI analysis using pyAFQ in a Jupyter notebook
+            </div>
+        </section>
+        <section>
+            <h2>We also like to use AWS</h2>
+            <div class="row">
+                <div style="float: left; width: 45%;">
+                    <p class="fragment" data-fragment-index="1">Pros:</p>
+                    <ul>
+                        <li class="fragment" data-fragment-index="1">Linear scalability</li>
+                        <li class="fragment" data-fragment-index="2">Elasticity</li>
+                        <li class="fragment" data-fragment-index="3">Ability to handle large datasets</li>
+                    </ul>
+                </div>
+                <div style="float: left; width: 55%;">
+                    <p class="fragment" data-fragment-index="4">Cons:</p>
+                    <ul>
+                        <li class="fragment" data-fragment-index="5">Learning curve</li>
+                        <li class="fragment" data-fragment-index="6">Difficult to choose instances</li>
+                        <li class="fragment" data-fragment-index="7">Additional overhead of provisioning resources</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section>
+            <h2>AWS EC2</h2>
+            <p>We can do anything on EC2 that we can do on our laptop</p>
+            <div class="imgcite imgcol">
+                <img src="img/ec2_instances.png" height="450" align="middle" alt="EC2 Management Console">
+                <br>
+                docs.aws.amazon.com
+            </div>
+            <pre><code data-trim data-noescape>
+                ssh -i /path/my-key-pair.pem ec2-user@ec2-198-51-100-1.compute-1.amazonaws.com
+            </code></pre>
+        </section>
+        <section data-transition="fade-out">
+            <div class="imgcite imgcol">
+                <img src="img/ec2_instances_1.png" height="800" align="middle" alt="Easy EC2 Instance Info">
+                <br>
+                ec2instances.info
+            </div>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <div class="imgcite imgcol">
+                <img src="img/ec2_instances_2.png" height="800" align="middle" alt="Easy EC2 Instance Info">
+                <br>
+                ec2instances.info
+            </div>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <div class="imgcite imgcol">
+                <img src="img/ec2_instances_3.png" height="800" align="middle" alt="Easy EC2 Instance Info">
+                <br>
+                ec2instances.info
+            </div>
+        </section>
+        <section data-transition="fade-in">
+            <div class="imgcite imgcol">
+                <img src="img/ec2_instances_4.png" height="800" align="middle" alt="Easy EC2 Instance Info">
+                <br>
+                ec2instances.info
+            </div>
+        </section>
+        <section id="prev-work">
+            <h2>Previous attempts</h2>
+            <p>Other platforms have sought to lower the AWS entry barrier</p>
+            <ul>
+                <li>PiCloud (2010), acquired by Dropbox in 2013</li>
+                <li><a href="http://pywren.io/">pyWren</a> (2017), built on AWS Lambda</li>
+                <ul>
+                    <li>5 minute execution time</li>
+                    <li>1.5 GB of RAM</li>
+                    <li>512 MB local storage</li>
+                    <li>no root access</li>
+                </ul>
+            </ul>
+        </section>
+        <section>
+            Add screenshot of Batch console
+            Takeaway: Batch is AWS's way of achieving scaling using EC2. Get's complicatied. Hard to automate.
+        </section>
+        <section id="api">
+            <h2>API</h2>
+            <ul>
+                <li>an abstraction on top of <code>Executor</code> from Python's concurrent futures</li>
+                <li>pedagogical example: estimating <script type="math/tex; mode=inline">\pi</script> using Monte Carlo</li>
+            </ul>
+            <div class="imgcite imgcol">
+                <img src="img/pi_30k.gif" height="450" align="middle" alt="Estimation of pi using Monte Carlo">
+                <br>
+                By nicoguaro [<a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Pi_30K.gif">from Wikimedia Commons</a>
+            </div>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Define the user defined function (UDF).</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>N.B. we import prerequisites inside the UDF.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  <mark>import numpy as np</mark>
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Instantiate a Knot, creating resources on AWS.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              <mark>knot = ck.Knot(name='pi-calc', func=monte_pi_count)</mark>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Submit jobs with the <code>map()</code> method.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              <mark>future = knot.map(args)</mark>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Summarize the status of submitted jobs.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              future = knot.map(args)
+
+              <mark>knot.view_jobs()</mark>
+              [out]: Job ID          Name           Status
+                     ----------------------------------------
+                     fcd2a14b...     pi-calc-0      PENDING
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Query the result status.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              future = knot.map(args)
+
+              knot.view_jobs()
+
+              done_yet = <mark>future.done()</mark>:
+
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Retrieve the result.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              future = knot.map(args)
+
+              knot.view_jobs()
+ 
+              done_yet = future.done()
+              <mark>res = future.result()</mark>
+
+              
+              
+
+              
+              
+              
+                  
+                  
+
+              
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Or retrieve previously submitted results.</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              future = knot.map(args)
+
+              knot.view_jobs()
+
+              done_yet = future.done()
+              res = future.result()
+              # Equivalent to future.result()
+              <mark>res = knot.jobs[-1].result()</mark>
+
+
+                 
+
+
+
+
+
+            </code></pre>
+        </section>
+        <section data-transition="fade-in fade-out">
+            <p>Or add a callback to the final result</p>
+            <pre class="stretch"><code data-trim data-noescape>
+              import cloudknot as ck
+
+              def monte_pi_count(n):
+                  import numpy as np
+                  x = np.random.rand(n)
+                  y = np.random.rand(n)
+                  return np.count_nonzero(x * x + y * y <= 1.0)
+
+              knot = ck.Knot(name='pi-calc', func=monte_pi_count)
+
+              n_jobs, n_samples = 1000, 100000000
+              import numpy as np
+              args = np.ones(n_jobs, dtype=np.int32) * n_samples
+              future = knot.map(args)
+
+              knot.view_jobs()
+
+              done_yet = future.done()
+              res = future.result()
+              # Equivalent to future.result()
+              res = knot.jobs[-1].result()
+
+              PI = 0.0
+              def <mark>pi_from_future</mark>(future):
+                  global PI
+                  PI = 4.0 * np.sum(future.result()) / (n_samples * n_jobs)
+
+              future.add_done_callback(<mark>pi_from_future</mark>)
+            </code></pre>
+        </section>
+        <section>
+            <h2>Workflow without Cloudknot</h2>
+            <ul>
+                <li class="fragment">Build a Docker image (local machine)</li>
+                <li class="fragment">Create an Amazon ECR repository for the image (web)</li>
+                <li class="fragment">Push the build image to ECR (local machine)</li>
+                <li class="fragment">Create IAM Roles, compute environment, job queue (web)</li>
+                <li class="fragment">Create a job definition that uses the built image (web)</li>
+                <li class="fragment">Submit jobs (web)</li>
+            </ul>
+        </section>
+        <section id="design">
+            <h2>Design</h2>
+        </section>
+        <section id="single-program">
+            <h2>Single Program</h2>
+            <div class="row">
+                <div style="float: left; width: 45%;">
+                    <pre class="stretch"><code data-trim data-noescape>
+                        import cloudknot as ck
+
+                        def awesome_func(...):
+                            ...
+
+                        knot = <mark>ck.Knot(func=awesome_func)</mark>
+
+
+
+
+                    </code></pre>
+                </div>
+                <div style="float: left; width: 55%;">
+                    <img src="img/cloudknot_single_program.svg" height="600" align="middle" alt="Cloudknot workflow">
+                </div>
+            </div>
+        </section>
+        <section id="docker">
+            <h2>Why Docker?</h2>
+            <ul>
+                <li>Containerization: operating-system-level virtualization</li>
+                <li>Lightweight, layered images capture all dependencies</li>
+                <li>Hosted on AWS ECR</li>
+                <li>Parameter for AWS Batch Job Definitions using <code>docker run</code></li>
+            </ul>
+        </section>
+        <section id="multiple-data">
+            <h2>Multiple Data</h2>
+            <div class="row">
+                <div style="float: left; width: 45%;">
+                    <pre class="stretch"><code data-trim data-noescape>
+                        import cloudknot as ck
+
+                        def awesome_func(...):
+                            ...
+
+                        knot = ck.Knot(func=awesome_func)
+
+                        ...
+
+                        future = <mark>knot.map(args)</mark>
+                    </code></pre>
+                </div>
+                <div style="float: left; width: 55%;">
+                    <img src="img/cloudknot_workflow.svg" height="600" align="middle" alt="Cloudknot workflow">
+                </div>
+            </div>
+        </section>
+        <section id="examples">
+            <h2>Examples</h2>
+        </section>
+        <section data-transition="fade-out" id="heat-eq">
+            <h2>Solving differential equations</h2>
+            <div class="row">
+                <div style="float: left; width: 25%;">
+                    <img src="img/heat_eq_image.png" height="300">
+                </div>
+                <div style="float: left; width: 74%; padding-left: 5px;">
+                    <p>Solve</p>
+                    <script type="math/tex; mode=display">
+                        \nabla^2 T = \frac{\partial^2 T}{\partial x^2} + \frac{\partial^2 T}{\partial y^2} = 0
+                    </script>
+                    <p>with some boundary conditions.</p>
+                </div>
+            </div>
+        </section>
+        <section data-transition="fade-in fade-out" id="heat-eq-nargs-benchmark">
+            <h2>Solving differential equations</h2>
+            <div class="row">
+                <div style="float: left; width: 25%;">
+                    <img src="img/heat_eq_image.png" height="300">
+                </div>
+                <div style="float: left; width: 74%; padding-left: 5px;">
+                    <img src="img/nargsscaling.png" height="600", style="background-color:white;">
+                    <p>Increase number of constraints.</p>
+                </div>
+            </div>
+        </section>
+        <section data-transition="fade-in fade-out" id="heat-eq-syssize-benchmark">
+            <h2>Solving differential equations</h2>
+            <div class="row">
+                <div style="float: left; width: 25%;">
+                    <img src="img/heat_eq_image.png" height="300">
+                </div>
+                <div style="float: left; width: 74%; padding-left: 5px;">
+                    <img src="img/syssizescaling.png" height="600", style="background-color:white;">
+                    <p>Increase system size.</p>
+                </div>
+            </div>
+        </section>
+        <section data-transition="fade-in" id="heat-eq-takeaways">
+            <h2>Solving differential equations</h2>
+            <h3>Takeaway</h3>
+            <ul>
+                <li>If UDF fits within AWS Lambda limitations, use Pywren.</li>
+                <li>If not, Cloudknot is here for you.</li>
+            </ul>
+        </section>
+        <section id="mri">
+            <h2>Analysis of MRI data</h2>
+            <div class="imgrow">
+                <div class="imgcite imgcol">
+                    <img src="img/mri.jpg" height="350" align="middle" alt="Analysis of diffusion MRI data">
+                    <br>
+                    By everyone's idle (originally posted to Flickr as A brain - I has it) [<a href="https://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0 </a>], <a href="https://commons.wikimedia.org/wiki/File:MRI_brain_sagittal_section.jpg">via Wikimedia Commons</a>
+                </div>
+                <div class="imgcol">
+                    <p style="font-size:5em;">&rArr;</p>
+                </div>
+                <div class="imgcite imgcol">
+                    <img src="img/tracts.jpg" height="350" align="middle" alt="Analysis of diffusion MRI data">
+                    <br>
+                    Yeatman, et al.; Nature Communications 9, 940 (2018)
+                </div>
+            </div>
+        </section>
+        <section id="mri-benchmark">
+            <h2>Analysis of MRI data</h2>
+            <p>Compare to Dask, Myria, Spark using previous benchmark study.</p>
+            <img src="img/mri_benchmark.png" height="600", style="background-color:white;">
+        </section>
+        <section id="mri-takeaways">
+            <h2>Analysis of MRI data</h2>
+            <h3>Takeaway</h3>
+            <ul>
+                <li>Previous MRI benchmark was performed by a team of 4 graduate students and postdocs over 6 months.</li>
+                <li>Cloudknot implementation took Ariel one day</li>
+                <li>For 25 subjects, Cloudknot was 10-25% slower</li>
+                <li>Cloudknot favors workloads where development time is more important than execution time</li>
+            </ul>
+        </section>
+        <section id="microscopy">
+            <h2>Analysis of microscopy data</h2>
+            <div class="imgcite">
+                <img src="img/diff_classifier.png" height="500" align="middle" alt="Sample output from diff_classier visualization tools">
+                <br>
+                Chad Curtis. <a href="https://github.com/ccurtis7/diff_ classifier">diff_classifier</a>, 2018.
+            </div>
+        </section>
+        <section id="microscopy-takeaways">
+            <h2>Analysis of microscopy data</h2>
+            <ul>
+                <li class="fragment" data-fragment-index="1">Complicated software dependencies</li>
+                <ul>
+                    <li class="fragment" data-fragment-index="2">ImageJ and TrackMate</li>
+                    <li class="fragment" data-fragment-index="3">Written in Java, scripted in Jython</li>
+                    <li class="fragment" data-fragment-index="4">Installation can be managed in a Docker image</li>
+                </ul>
+                <li class="fragment" data-fragment-index="5">Large datasets, measured in TB</li>
+                <ul>
+                    <li class="fragment" data-fragment-index="6">Managed using an AMI that includes a larger volume</li>
+                    <li class="fragment" data-fragment-index="6">Default Batch AMI volumed limited to 30 GB</li>
+                </ul>
+                <li class="fragment" data-fragment-index="7">Takeaways</li>
+                <ul>
+                    <li class="fragment" data-fragment-index="8">Longer development time (~months) due to custom AMI and Docker image</li>
+                    <li class="fragment" data-fragment-index="9">This lab has completely transitioned from using bespoke cluster to AWS.</li>
+                    <li class="fragment" data-fragment-index="10">Enables capability computing (rather than capacity computing)</li>
+                </ul>
+            </ul>
+        </section>
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <ul>
+                <li class="fragment" data-fragment-index="1">Cloudknot favors workloads where development time matters more than execution time.</li>
+                <li class="fragment" data-fragment-index="1">For many data science problems, this is an acceptable trade.</li>
+                <li class="fragment" data-fragment-index="2">Simplified API makes cloud computing more accessible.</li>
+                <ol class="fragment" data-fragment-index="2">
+                    <li><code>import cloudknot</code></li>
+                    <li><code>cloudknot.Knot()</code></li>
+                    <li><code>map()</code> method</li>
+                </ul>
+            </ul>
+        </section>
+        <section>
+            <p>Github repo: <a href="https://github.com/richford/cloudknot">https://github.com/richford/cloudknot</a></p>
+            <p>Documentation: <a href="https://richford.github.io/cloudknot/index.html">https://richford.github.io/cloudknot/index.html</a></p>
+            <p>We welcome issues and contributions!</p>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+<script>
+    // More info about config & dependencies:
+    // - https://github.com/hakimel/reveal.js#configuration
+    // - https://github.com/hakimel/reveal.js#dependencies
+    Reveal.initialize({
+        width: 1200,
+        height: 900,
+        margin: 0.1,
+        math: {
+            mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+            config: 'TeX-AMS_HTML-full'
+        },
+        dependencies: [
+            { src: 'plugin/math/math.js', async: true },
+            { src: 'plugin/markdown/marked.js' },
+            { src: 'plugin/markdown/markdown.js' },
+            { src: 'plugin/notes/notes.js', async: true },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+    });
+</script>
+</body>
+</html>

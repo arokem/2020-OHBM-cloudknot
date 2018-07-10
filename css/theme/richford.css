@@ -1,0 +1,31 @@
+.reveal .cite {
+  position: absolute;
+  left: 750px;
+  top: 600px;
+  font-size: 0.5em;
+}
+
+.reveal .imgcite {
+  font-size: 0.4em;
+  text-align: center;
+}
+
+.fragment.current-visible.visible:not(.current-fragment) {
+  display: none;
+  height:0px;
+  line-height: 0px;
+  font-size: 0px;
+}
+
+.reveal mark {
+  background-color: #1980c4;
+}
+
+.imgcol {
+  flex: 33.33%;
+  padding: 5px;
+}
+
+.imgrow {
+  display: flex;
+}
