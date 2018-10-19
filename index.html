@@ -30,10 +30,10 @@
     <div class="slides">
         <section id="cover">
             <h2>Cloudknot:</h2>
-            <h3>A Python library to run your existing code on AWS Batch</h3>
+            <h3>Scaling your existing (Python) code in the (AWS) cloud</h3>
             <p><a href="http://github.com/richford">Adam Richie-Halford</a>, <a href="https://phys.washington.edu/">University of Washington Dept of Physics</a></p>
             <p><a href="http://arokem.org">Ariel Rokem</a>, <a href="http://escience.washington.edu">University of Washington eScience Institute</a> </p>
-            <p> <small>Follow along at <a href="http://richford.github.io/scipy2018-cloudknot-talk/">http://richford.github.io/scipy2018-cloudknot-talk/</a></small></p>
+            <p> <small>Follow along at <a href="http://arokem.github.io/2018-10-23-cloudknot">http://arokem.github.io/2018-10-23-cloudknot/</a></small></p>
             <img src="img/cc-by.png" height="30px" alt="License" align="middle">
         </section>
         <section id="about-us">
@@ -47,10 +47,7 @@
                 </div>
                 <div style="float: left; width: 74%; padding-left: 5px;">
                     <ul>
-                        <li class="fragment">Senior Data Scientist, UW eScience Institute</li>
-                        <li class="fragment">Open source software for neuroscience</li>
-                        <li class="fragment">Software and Data Carpentry Instructor and Instructor Trainer</li>
-                        <li class="fragment">Chair of eScience working group on reproducibility and open science</li>
+                        <li class="fragment">Data Scientist, UW eScience Institute</li>
                     </ul>
                 </div>
             </div>
@@ -66,7 +63,6 @@
                         <li class="fragment">PhD Candidate, UW Physics</li>
                         <li class="fragment">Nuclear theory: quantum Monte Carlo studies of neutron matter</li>
                         <li class="fragment">Neuroscience: visualization and machine learning tools for neuroimaging data</li>
-                        <li class="fragment">Software and Data Carpentry Instructor</li>
                     </ul>
                 </div>
             </div>
@@ -88,7 +84,7 @@
             </div>
         </section>
         <section>
-            <h2>We also like to use AWS</h2>
+            <h2>We also like to use cloud computing</h2>
             <div class="row">
                 <div style="float: left; width: 45%;">
                     <p class="fragment" data-fragment-index="1">Pros:</p>
@@ -162,7 +158,7 @@
                 <br>
             </div>
         </section>
-        <section id="prev-work">
+        <!-- <section id="prev-work">
             <h2>Previous attempts</h2>
             <p>Other platforms have sought to lower the AWS entry barrier</p>
             <ul>
@@ -175,8 +171,8 @@
                     <li>no root access</li>
                 </ul>
             </ul>
-        </section>
-        <section>
+        </section> -->
+        <!-- <section>
             <h2>AWS Batch</h2>
             <div class="row">
                 <div style="float: left; width: 20%;">
@@ -197,8 +193,8 @@
                     </ul>
                 </div>
             </div>
-        </section>
-        <section id="api">
+        </section> -->
+        <!-- <section id="api">
             <h2>API</h2>
             <ul>
                 <li>an abstraction on top of <code>Executor</code> from Python's concurrent futures</li>
@@ -209,8 +205,8 @@
                 <br>
                 By nicoguaro [<a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>], <a href="https://commons.wikimedia.org/wiki/File:Pi_30K.gif">from Wikimedia Commons</a>
             </div>
-        </section>
-        <section data-transition="fade-in fade-out">
+        </section> -->
+        <!-- <section data-transition="fade-in fade-out">
             <p>Define the user defined function (UDF).</p>
             <pre class="stretch"><code data-trim data-noescape>
               import cloudknot as ck
@@ -573,7 +569,7 @@
         </section>
         <section id="design">
             <h2>Design</h2>
-        </section>
+        </section> -->
         <section id="single-program">
             <h2>Single Program</h2>
             <div class="row">
@@ -627,7 +623,7 @@
                 </div>
             </div>
         </section>
-        <section id="examples">
+        <!-- <section id="examples">
             <h2>Examples</h2>
         </section>
         <section data-transition="fade-out" id="heat-eq">
@@ -676,7 +672,7 @@
                 <li>If UDF fits within AWS Lambda limitations, use Pywren.</li>
                 <li>If not, Cloudknot is here for you.</li>
             </ul>
-        </section>
+        </section> -->
         <section id="mri">
             <h2>Analysis of MRI data</h2>
             <div class="imgrow">
@@ -700,6 +696,7 @@
             <p>Compare to Dask, Myria, Spark using previous benchmark study.</p>
             <img src="img/mri_benchmark.png" height="600", style="background-color:white;">
         </section>
+
         <section id="mri-takeaways">
             <h2>Analysis of MRI data</h2>
             <h3>Takeaway</h3>
@@ -710,6 +707,7 @@
                 <li>Cloudknot favors workloads where development time is more important than execution time</li>
             </ul>
         </section>
+
         <section id="microscopy">
             <h2>Analysis of microscopy data</h2>
             <div class="imgcite">
@@ -718,6 +716,7 @@
                 Chad Curtis. <a href="https://github.com/ccurtis7/diff_ classifier">diff_classifier</a>, 2018.
             </div>
         </section>
+
         <section id="microscopy-takeaways">
             <h2>Analysis of microscopy data</h2>
             <ul>
@@ -740,6 +739,20 @@
                 </ul>
             </ul>
         </section>
+
+        <section id="incubator">
+                <h2>The eScience Incubator</h2>
+                <ul>
+                    <li>Work with an eScience data scientist on your project</li>
+                    <li>1 quarter, 2 days/week </li>
+                    <li>Proposals due: <emph>November 9th</emph></li>
+                    <li><a href="https://escience.washington.edu/get-involved/incubator-programs/overview/">eScience website</a></li>
+                    <li>Info session: this Thursday (25th) at 1 PM at the DSS (Phy/Astro tower, 6th floor)</li>
+                </ul>
+        </section>
+
+
+
         <section id="conclusion">
             <h2>Conclusion</h2>
             <ul>
@@ -753,6 +766,7 @@
                 </ul>
             </ul>
         </section>
+
         <section>
             <p>Github repo: <a href="https://github.com/richford/cloudknot">https://github.com/richford/cloudknot</a></p>
             <p>Documentation: <a href="https://richford.github.io/cloudknot/index.html">https://richford.github.io/cloudknot/index.html</a></p>
